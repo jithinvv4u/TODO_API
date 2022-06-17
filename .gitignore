@@ -1,4 +1,4 @@
 venv/
-api/_pycache_/
-TO_DO/_pycache_/
+api/__pycache__/
+TO_DO/__pycache__/
 api/migrations/
