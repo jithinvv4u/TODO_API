@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Title</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  </head>
+  <body>
+
+
+
+      <section class="vh-100 gradient-custom">
+        <div class="container py-5 h-100">
+          <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col col-xl-10">
+      
+              <div class="card">
+                <div class="card-body p-5">
+      
+                  <form class="d-flex justify-content-center align-items-center mb-4">
+                    {% csrf_token %}
+                    <div class="form-outline flex-fill">
+                      <input type="text" id="new_task" class="form-control" placeholder="add new task..." />
+                    </div>
+                    <button type="submit" id="new_task_btn" class="btn btn-primary ms-2 ml-3">Add</button>
+                    
+                  </form>
+      
+                  <!-- Tabs navs -->
+                  <ul class="nav nav-tabs mb-4 pb-2" id="ex1" role="tablist">
+
+                    <li class="nav-item" role="presentation">
+                      <a class="nav-link active" id="ex1-tab-2" data-mdb-toggle="tab" href="#ex1-tabs-2" role="tab"
+                        aria-controls="ex1-tabs-2" aria-selected="true">Active</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <a class="nav-link" id="ex1-tab-3" data-mdb-toggle="tab" href="#ex1-tabs-3" role="tab"
+                        aria-controls="ex1-tabs-3" aria-selected="false">Completed</a>
+                    </li>
+                  </ul>
+                  <!-- Tabs navs -->
+      
+                  <!-- Tabs content -->
+                  <ul class="nav nav-pills nav-stacked" id="list" style="max-height: 300px;overflow: auto;">
+
+                  </ul>
+                  <!-- Tabs content -->
+      
+                </div>
+              </div>
+      
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+
+    <!-- Optional JavaScript -->
+
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function(){
+            $.ajax({
+            method: 'GET',
+            url:  "{% url 'todo' %}",
+            success: function (response) {
+
+              Object.keys(response.data).forEach(key=>{
+                  console.log(response.data[key]);
+                  data=response.data[key]
+                  $('#list').append(
+                    '<li class="w-100 data">'+data['title']+
+                      '<input type="checkbox" class="check_task float-left mr-3 mt-2"> <button type="button" class="btn btn-outline-danger float-right remove_task">delete</button></li> '
+                    );
+                    
+                  })
+                }
+            })
+      })
+
+      $('#new_task_btn').click(function(e){
+              e.preventDefault()
+              title=$('#new_task').val()
+              console.log(title);
+
+                 $.ajax({
+                     url: "{% url 'todo' %}",
+                     dataType: 'json',
+                     method:'POST',
+                     data: {'title':title},
+                     headers:{
+                      'X-CSRFToken': '{{ csrf_token }}'},
+
+                     success: function (response, textStatus, xhr) {
+                      console.log(response.title);
+                      $('#list').prepend('<li class="w-100">'+response.title+'<input type="checkbox" class="check_task float-left mr-3 mt-2"> <button type="button" class="btn btn-outline-danger float-right remove_task">delete</button></li>');
+                     },
+                     error: function (xhr, textStatus, errorThrown) {
+                         console.log('Error in Operation');
+                     }
+                 });
+             });
+        
+        $('.remove_task').on('click',function(e){
+              e.preventDefault()
+              console.log('title');
+              alert('clicked')
+
+              $(this).closest('.data').remove()
+
+              //    $.ajax({
+              //        url: "{% url 'todo' %}",
+              //        dataType: 'json',
+              //        method:'POST',
+              //        data: {'title':title},
+              //        headers:{
+              //         'X-CSRFToken': '{{ csrf_token }}'},
+
+              //        success: function (response, textStatus, xhr) {
+              //         console.log(response.title);
+              //         $('#list').append('<li class="w-100">'+response.title+'</li>');
+              //        },
+              //        error: function (xhr, textStatus, errorThrown) {
+              //            console.log('Error in Operation');
+              //        }
+              //    });
+             });
+
+             $("#list li").click(function(){
+              alert('clicked')
+             })
+
+        //      function submitToDo(e) {
+        //     e.preventDefault()
+        //     var dat = new FormData($('form')[0])
+        //     // console.log('----------------------', Object.fromEntries(new FormData($('form')[0])))
+
+
+        //     fetch(url, {
+        //         method: 'POST',
+        //         headers: {
+        //             'X-CSRFToken': '{{ csrf_token }}' //getCookie('csrftoken')
+        //         },
+        //         body: dat
+        //     }
+        //     ).then(function (res) {
+        //         // console.log(res)
+        //         if (res.status == 201) {
+        //             createToDoList()
+        //             $('form')[0].reset();
+        //         }
+        //     })
+        // }
+    </script>  
+</body>
+</html>
