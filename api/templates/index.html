@@ -20,7 +20,7 @@
             <div class="col col-xl-10">
       
               <div class="card">
-                <div class="card-body p-5">
+                <div class="card-body p-5" id="mydiv">
       
                   <form class="d-flex justify-content-center align-items-center mb-4">
                     {% csrf_token %}
@@ -59,8 +59,6 @@
         </div>
       </section>
 
-
-
     <!-- Optional JavaScript -->
 
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -68,6 +66,27 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <script>
+
+        function deleteTodo(id) {
+          $.ajax({
+            url: '/list/'+id,
+            dataType:'json',
+            method: 'DELETE',
+            headers:{'X-CSRFToken': '{{ csrf_token }}'},
+            success: function(response){
+              $("#"+response.data).closest('li').remove();
+            }
+          })
+        }
+
+        function checkTodo() {
+          // alert(id)
+          alert('checked')
+          data=$(this).closest('#hidden_id').val()
+          alert(data)
+          
+        }
+
         $(document).ready(function(){
             $.ajax({
             method: 'GET',
@@ -75,11 +94,11 @@
             success: function (response) {
 
               Object.keys(response.data).forEach(key=>{
-                  console.log(response.data[key]);
                   data=response.data[key]
+                  id=data['id']
                   $('#list').append(
-                    '<li class="w-100 data">'+data['title']+
-                      '<input type="checkbox" class="check_task float-left mr-3 mt-2"> <button type="button" class="btn btn-outline-danger float-right remove_task">delete</button></li> '
+                    '<li class="w-100 data" id="'+data.id+'">'+data.title+
+                      '<input type="checkbox" onclick=checkTodo() class="float-left mr-3 mt-2" > <button type="button" onclick=deleteTodo('+data.id+') class="btn btn-outline-danger float-right remove_task">delete</button></li> '
                     );
                     
                   })
@@ -90,7 +109,6 @@
       $('#new_task_btn').click(function(e){
               e.preventDefault()
               title=$('#new_task').val()
-              console.log(title);
 
                  $.ajax({
                      url: "{% url 'todo' %}",
@@ -101,8 +119,8 @@
                       'X-CSRFToken': '{{ csrf_token }}'},
 
                      success: function (response, textStatus, xhr) {
-                      console.log(response.title);
-                      $('#list').prepend('<li class="w-100">'+response.title+'<input type="checkbox" class="check_task float-left mr-3 mt-2"> <button type="button" class="btn btn-outline-danger float-right remove_task">delete</button></li>');
+                      $('#list').prepend('<li class="w-100" id="'+response.id+'">'+response.title+
+                        '<input type="checkbox" class="check_task float-left mr-3 mt-2"> <button type="button" onclick=deleteTodo('+response.id+') class="btn btn-outline-danger float-right remove_task">delete</button></li>');
                      },
                      error: function (xhr, textStatus, errorThrown) {
                          console.log('Error in Operation');
@@ -110,12 +128,12 @@
                  });
              });
         
-        $('.remove_task').on('click',function(e){
-              e.preventDefault()
-              console.log('title');
-              alert('clicked')
+        // $('.check_task').on('click',function(){
+              // e.preventDefault()
+              // console.log('title');
+              // alert('clicked')
 
-              $(this).closest('.data').remove()
+              // $(this).closest('.data').remove()
 
               //    $.ajax({
               //        url: "{% url 'todo' %}",
@@ -133,11 +151,9 @@
               //            console.log('Error in Operation');
               //        }
               //    });
-             });
+            //  });
 
-             $("#list li").click(function(){
-              alert('clicked')
-             })
+
 
         //      function submitToDo(e) {
         //     e.preventDefault()
