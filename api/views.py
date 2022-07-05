@@ -1,3 +1,4 @@
+from functools import partial
 from django.http import JsonResponse
 from django.shortcuts import render
 from rest_framework import generics,mixins
@@ -30,20 +31,52 @@ class ListToDo(View):
     def post(self,request,*args,**kwrags):
         data={}
         data['title']=request.POST.get('title')
+        data['completed']=False
         serialized=self.serializer(data=data)
         if serialized.is_valid():
             serialized.save()
-        print(serialized.data)
-        
+            print(serialized.data)
         return JsonResponse(serialized.data)
     
-    def put(self,request,*args,**kwrags):
+    def put(self,request,pk,*args,**kwrags):
+        # queryset=self.model.objects.get(pk=pk)
+        # serialized=self.serializer(queryset)
+        # print(queryset)
+        
         pass
     
     def delete(self,request,pk,*arg,**kwrags):
         datas=ToDo.objects.get(pk=pk)
         datas.delete()
         return JsonResponse({'data':pk})
+    
+    
+class CheckBoxClick(View):
+    serializer=ToDoSerializer
+    model=ToDo
+    
+    def patch(self,request,pk,*arg,**kwrags):
+        queryset=self.model.objects.get(pk=pk)
+        checkData=self.model.objects.filter(pk=pk).values('completed')
+        
+        if checkData[0]['completed']==False:
+            data={'completed':True}
+            serialized=self.serializer(queryset,data=data,partial=True)
+            if serialized.is_valid():
+                serialized.save()
+        elif checkData[0]['completed']==True:
+            data={'completed':False}
+            serialized=self.serializer(queryset,data=data,partial=True)
+            if serialized.is_valid():
+                serialized.save()
+            else:
+                print('error')
+                
+        return JsonResponse(serialized.data)
+   
+   
+   
+   
     
 # class ListToDo(generics.ListAPIView):
 #     serializer_class=ToDoSerializer
