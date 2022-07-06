@@ -1,15 +1,12 @@
-from functools import partial
-import json
+from rest_framework.response import Response
+from rest_framework import status
 from django.http import JsonResponse
 from django.shortcuts import render
-from rest_framework import generics,mixins
+from django.views import View
+from django.http import Http404,QueryDict
 from .models import ToDo
 from .serializers import ToDoSerializer
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from django.views import View
-from rest_framework import status
-from django.http import Http404,QueryDict
+
 
 def loadIndex(request):
     return render(request,'index.html')
@@ -18,40 +15,36 @@ class ListToDo(View):
     serializer=ToDoSerializer
     model=ToDo
     
-    # def get_object(self, pk):
-    #     try:
-    #         return self.model.objects.get(pk=pk)
-    #     except self.model.DoesNotExist:
-    #         raise Http404
+    def get_object(self, pk):
+        try:
+            return self.model.objects.get(pk=pk)
+        except self.model.DoesNotExist:
+            raise Http404
 
     def get(self,request,*args,**kwrags):
-        datas=self.model.objects.all().order_by('-created_at')
-        serialized=self.serializer(datas,many=True)
+        queryset=self.model.objects.all().order_by('-created_at')
+        serialized=self.serializer(queryset,many=True)
         return JsonResponse({'data':serialized.data})
         
     def post(self,request,*args,**kwrags):
-        data={}
-        data['title']=request.POST.get('title')
-        data['completed']=False
+        data={'title':request.POST.get('title'),'completed':False}
         serialized=self.serializer(data=data)
         if serialized.is_valid():
             serialized.save()
-            print(serialized.data)
         return JsonResponse(serialized.data)
     
     def put(self,request,pk,*args,**kwrags):
-        queryset=self.model.objects.get(pk=pk)
+        queryset=self.get_object(pk)
         title=QueryDict(request.body).get('title')
         data={'id':pk,'title':title,}
         serialized=self.serializer(queryset,data=data)
         if serialized.is_valid():
             serialized.save()
-            print(serialized)
             return JsonResponse(serialized.data)
         return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
     
     def patch(self,request,pk,*arg,**kwrags):
-        queryset=self.model.objects.get(pk=pk)
+        queryset=self.get_object(pk)
         checkData=self.model.objects.filter(pk=pk).values('completed')
         
         if checkData[0]['completed']==False:
@@ -64,12 +57,10 @@ class ListToDo(View):
             serialized=self.serializer(queryset,data=data,partial=True)
             if serialized.is_valid():
                 serialized.save()
-            else:
-                print('error')
         return JsonResponse(serialized.data)
     
     def delete(self,request,pk,*arg,**kwrags):
-        datas=ToDo.objects.get(pk=pk)
+        datas=self.get_object(pk)
         datas.delete()
         return JsonResponse({'data':pk})
    
