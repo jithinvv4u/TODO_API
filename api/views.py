@@ -11,7 +11,6 @@ from django.views import View
 from rest_framework import status
 from django.http import Http404,QueryDict
 
-# Create your views here.
 def loadIndex(request):
     return render(request,'index.html')
 
@@ -51,16 +50,6 @@ class ListToDo(View):
             return JsonResponse(serialized.data)
         return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
     
-    def delete(self,request,pk,*arg,**kwrags):
-        datas=ToDo.objects.get(pk=pk)
-        datas.delete()
-        return JsonResponse({'data':pk})
-    
-    
-class CheckBoxClick(View):
-    serializer=ToDoSerializer
-    model=ToDo
-    
     def patch(self,request,pk,*arg,**kwrags):
         queryset=self.model.objects.get(pk=pk)
         checkData=self.model.objects.filter(pk=pk).values('completed')
@@ -77,8 +66,12 @@ class CheckBoxClick(View):
                 serialized.save()
             else:
                 print('error')
-                
         return JsonResponse(serialized.data)
+    
+    def delete(self,request,pk,*arg,**kwrags):
+        datas=ToDo.objects.get(pk=pk)
+        datas.delete()
+        return JsonResponse({'data':pk})
    
    
    

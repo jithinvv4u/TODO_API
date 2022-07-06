@@ -68,7 +68,6 @@
     <script>
 
         function updateTodo(id){
-          $('#new_task').val(id)
           $('#'+id).closest('input').removeClass('border-0').prop('disabled',false).prop('readonly',false)
           $('#'+id).closest('input').focusout(function(){
             data=$('#'+id).closest('input').val()
@@ -84,9 +83,22 @@
 
             })
           });
-
-
+          $('#'+id).closest('input').keypress(function(e){
+            if(e.which == 13) {
+            data=$('#'+id).closest('input').val()
+            $.ajax({
+              url:'/list/'+id,
+              dataType:'json',
+              data:{'title':data},
+              method:'PUT',
+              headers:{'X-CSRFToken':'{{ csrf_token }}'},
+              success: function(response){
+                  $('#'+response.id).closest('input').addClass('border-0').prop('disabled',true).prop('readonly',true)
+              }
+              })}
+              });
         }
+
 
         function deleteTodo(id) {
           $.ajax({
@@ -96,30 +108,23 @@
             headers:{'X-CSRFToken':'{{ csrf_token }}'},
             success: function(response){
               $("#"+response.data).closest('li').remove();
-            }
-          })
+            }})
         }
 
         function checkTodo(id) {
-
           $.ajax({
-            url:'/checkbox/'+id,
+            url:'/list/'+id,
             dataType:'json',
             method:'PATCH',
             headers:{'X-CSRFToken':'{{ csrf_token }}'},
             success: function(response){
-
               if (response.completed===true) {
-              $("#"+response.id).closest('input').css("text-decoration","line-through");
+                $("#"+response.id).closest('input').css("text-decoration","line-through");
               }
               else if(response.completed===false) {
-              $("#"+response.id).closest('input').css("text-decoration","None");
-
-              }
-
-            }
-          })
-          
+                $("#"+response.id).closest('input').css("text-decoration","None");
+              }}
+            })
         }
 
         $(document).ready(function(){
@@ -138,17 +143,15 @@
               }else if (response.data[key].completed===false){
                 $('#list').append(
                   '<li class="w-100 data" ><input type="checkbox" onclick=checkTodo('+data.id+') class="float-left mr-3 mt-2" > <input type="text" value="'+data.title+'" id="'+data.id+'" style="text-decoration:None;" class="border-0 bg-white" disabled readonly> <button type="button" onclick=deleteTodo('+data.id+') class="btn btn-outline-danger float-right remove_task">delete</button> <button type="button" onclick=updateTodo("'+data.id+'") class="btn btn-outline-warning float-right">Update</button> </li> '
-
-                    // '<li class="w-100 data" id="'+data.id+'" style="text-decoration:None"><input type="text" value="'+data.title+'" class="border-0 bg-white" disabled readonly><input type="checkbox" onclick=checkTodo('+data.id+') id="'+data.id+'" style="text-decoration: line-through;" class="float-left mr-3 mt-2" >  <button type="button" onclick=deleteTodo('+data.id+') class="btn btn-outline-danger float-right remove_task m-1">delete</button> <button type="button" onclick=updateTodo("'+data.title+'") class="btn btn-outline-warning float-right m-1">Update</button></li> '
                     );
               }})
             }})
-      })
+        })
 
       $('#new_task_btn').click(function(e){
               e.preventDefault()
               title=$('#new_task').val()
-
+              if (title!=""){
                  $.ajax({
                      url: "{% url 'todo' %}",
                      dataType: 'json',
@@ -160,9 +163,8 @@
                      success: function (response, textStatus, xhr) {
                       data=response
                       $('#list').prepend(
-                          '<li class="w-100 data" ><input type="checkbox" onclick=checkTodo('+data.id+') class="float-left mr-3 mt-2" > <input type="text" value="'+data.title+'" id="'+data.id+'" style="text-decoration:None;" class="border-0 bg-white" disabled readonly> <button type="button" onclick=deleteTodo('+data.id+') class="btn btn-outline-danger float-right remove_task">delete</button> <button type="button" onclick=updateTodo("'+data.title+'") class="btn btn-outline-warning float-right">Update</button> </li> '
-
-                        // '<li class="w-100" id="'+response.id+'">'+response.title+'<input type="checkbox" onclick=checkTodo('+response.id+') class="check_task float-left mr-3 mt-2"> <button type="button" onclick=deleteTodo('+response.id+') class="btn btn-outline-danger float-right remove_task">delete</button> <button type="button" onclick=updateTodo('+data.id+') class="btn btn-outline-warning float-right">Update</button></li>'
+                          // '<li class="w-100 data" ><input type="checkbox" onclick=checkTodo('+data.id+') class="float-left mr-3 mt-2" > <input type="text" value="'+data.title+'" id="'+data.id+'" style="text-decoration:None;" class="border-0 bg-white" disabled readonly> <button type="button" onclick=deleteTodo('+data.id+') class="btn btn-outline-danger float-right remove_task">delete</button> <button type="button" onclick=updateTodo("'+data.title+'") class="btn btn-outline-warning float-right">Update</button> </li> '
+                          '<li class="w-100 data" ><input type="checkbox" onclick=checkTodo('+data.id+') class="float-left mr-3 mt-2" > <input type="text" value="'+data.title+'" id="'+data.id+'" style="text-decoration:None;" class="border-0 bg-white" disabled readonly> <button type="button" onclick=deleteTodo('+data.id+') class="btn btn-outline-danger float-right remove_task">delete</button> <button type="button" onclick=updateTodo("'+data.id+'") class="btn btn-outline-warning float-right">Update</button> </li> '
                         );
                         $('#new_task').val('')
                       },
@@ -170,6 +172,7 @@
                          console.log('Error in Operation');
                      }
                  });
+                }
              });
         
     </script>  
