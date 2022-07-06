@@ -1,4 +1,5 @@
 from functools import partial
+import json
 from django.http import JsonResponse
 from django.shortcuts import render
 from rest_framework import generics,mixins
@@ -8,7 +9,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.views import View
 from rest_framework import status
-from django.http import Http404
+from django.http import Http404,QueryDict
+
 # Create your views here.
 def loadIndex(request):
     return render(request,'index.html')
@@ -39,11 +41,15 @@ class ListToDo(View):
         return JsonResponse(serialized.data)
     
     def put(self,request,pk,*args,**kwrags):
-        # queryset=self.model.objects.get(pk=pk)
-        # serialized=self.serializer(queryset)
-        # print(queryset)
-        
-        pass
+        queryset=self.model.objects.get(pk=pk)
+        title=QueryDict(request.body).get('title')
+        data={'id':pk,'title':title,}
+        serialized=self.serializer(queryset,data=data)
+        if serialized.is_valid():
+            serialized.save()
+            print(serialized)
+            return JsonResponse(serialized.data)
+        return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
     
     def delete(self,request,pk,*arg,**kwrags):
         datas=ToDo.objects.get(pk=pk)
