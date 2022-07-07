@@ -77,8 +77,8 @@
               success: function(response){
                   $('#'+response.id).closest('input').addClass('border-0').prop('disabled',true).prop('readonly',true)
               }
-              })}
-              });
+            })}
+          });
         }
 
 
@@ -139,11 +139,9 @@
                      data: {'title':title},
                      headers:{
                       'X-CSRFToken': '{{ csrf_token }}'},
-
                      success: function (response, textStatus, xhr) {
                       data=response
                       $('#list').prepend(
-                          // '<li class="w-100 data" ><input type="checkbox" onclick=checkTodo('+data.id+') class="float-left mr-3 mt-2" > <input type="text" value="'+data.title+'" id="'+data.id+'" style="text-decoration:None;" class="border-0 bg-white" disabled readonly> <button type="button" onclick=deleteTodo('+data.id+') class="btn btn-outline-danger float-right remove_task">delete</button> <button type="button" onclick=updateTodo("'+data.title+'") class="btn btn-outline-warning float-right">Update</button> </li> '
                           '<li class="w-100 data" ><input type="checkbox" onclick=checkTodo('+data.id+') class="float-left mr-3 mt-2" > <input type="text" value="'+data.title+'" id="'+data.id+'" style="text-decoration:None;" class="border-0 bg-white" disabled readonly> <button type="button" onclick=deleteTodo('+data.id+') class="btn btn-outline-danger float-right remove_task">delete</button> <button type="button" onclick=updateTodo("'+data.id+'") class="btn btn-outline-warning float-right">Update</button> </li> '
                         );
                         $('#new_task').val('')
