@@ -6,9 +6,11 @@ from django.views import View
 from django.http import Http404,QueryDict
 from .models import ToDo
 from .serializers import ToDoSerializer
+from django.contrib.auth.decorators import login_required
 
-
+@login_required(login_url='/accounts/login/')
 def loadIndex(request):
+    print(request.user)
     return render(request,'index.html')
 
 class ListToDo(View):
