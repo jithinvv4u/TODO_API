@@ -10,7 +10,6 @@ from django.contrib.auth.decorators import login_required
 
 @login_required(login_url='/accounts/login/')
 def loadIndex(request):
-    print(request.user)
     return render(request,'index.html')
 
 class ListToDo(View):
@@ -24,12 +23,13 @@ class ListToDo(View):
             raise Http404
 
     def get(self,request,*args,**kwrags):
-        queryset=self.model.objects.all().order_by('-created_at')
+        queryset=self.model.objects.filter(user=request.user).order_by('-created_at')
         serialized=self.serializer(queryset,many=True)
         return JsonResponse({'data':serialized.data})
         
     def post(self,request,*args,**kwrags):
-        data={'title':request.POST.get('title'),'completed':False}
+        print(request.user.id)
+        data={'title':request.POST.get('title'),'completed':False,'user':request.user.id}
         serialized=self.serializer(data=data)
         if serialized.is_valid():
             serialized.save()
@@ -38,13 +38,13 @@ class ListToDo(View):
     def put(self,request,pk,*args,**kwrags):
         queryset=self.get_object(pk)
         title=QueryDict(request.body).get('title')
-        data={'id':pk,'title':title,}
+        data={'id':pk,'title':title,'user':request.user.id}
         serialized=self.serializer(queryset,data=data)
         if serialized.is_valid():
             serialized.save()
             return JsonResponse(serialized.data)
         return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
-    
+
     def patch(self,request,pk,*arg,**kwrags):
         queryset=self.get_object(pk)
         checkData=self.model.objects.filter(pk=pk).values('completed')

@@ -5,17 +5,14 @@ from django.contrib.auth.models import User
 from rest_framework.views import View
 from .serializers import RegisterSerializer
 from rest_framework.permissions import AllowAny
-
+from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import LoginForm
-from django.contrib.auth import authenticate,login
+from django.contrib.auth import authenticate,login,logout
+from django.contrib import messages
 
 def registerPage(request):
     return render(request,'userRegister.html')
-
-# def loginPage(request):
-#     form = AuthenticationForm()
-#     return render(request,'userLogin.html',{'form':form})
 
 class RegisterView(View):
     serializer_class = RegisterSerializer
@@ -29,60 +26,32 @@ class RegisterView(View):
         serialized=RegisterSerializer(data=data)
         if serialized.is_valid():
             serialized.save()
-            return JsonResponse({'message':'success...You can login now'})
-        print(serialized.errors)
-        return JsonResponse({'message':'Error'})
+            return redirect('login')
+        return JsonResponse({'message':'Invalid Credential'})
         # form=self.form_class(request.POST)
         # if form.is_valid():
         #     form.save()
-        #     print('form ok')
         # print(form.errors())
         # serialized=self.serializer(data=request.data)
 
 
-class LoginView(View):
-    form_class=LoginForm
-    
-    def get(self,request,*args,**kwrag):
-        form=self.form_class
-        return render(request,'userLogin.html',{'form':form})
-    
-    def post(self,request,*args,**kwrags):
-        form=self.form_class(request.POST)
-        print('ok')
+def LoginView(request):
+    if request.method=='POST':
+        form=LoginForm(request.POST)
         if form.is_valid():
             user = authenticate(username = form.cleaned_data['username'], password = form.cleaned_data['password'])
             if user is not None:
                 form = login(request, user)
-                # messages.success(request, f' wecome {username} !!')
                 return redirect('index')
+            else:
+                messages.error(request,'Account does not exist')
         else:
-            # messages.info(request, f'account done not exit plz sign in')
-            print('not valid')
-
-
-# from django.shortcuts import render
-# from .serializers import RegisterSerializer
-# from rest_framework.views import View
-# from .forms import RegisterForm
-# # Create your views here.
-
-
-
-# def registerPage(request):
-#     form=RegisterForm()
-#     return render(request,'userRegister.html',{'form':form})
-
-# class RegisterUserView(View):
-#     serializer= RegisterSerializer
-#     form_class=RegisterForm
+            messages.error(request,'Fill the Username And Password')
+    else:
+        form=LoginForm()
+    return render(request,'userLogin.html',{'form':form})
     
-#     def post(self,request,*args,**kwragS):
-#         print(request.POST)
-#         form=self.form_class(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             print('form ok')
-#         print(form.errors())
-#         # serialized=self.serializer(data=request.data)
-#         pass
+
+def user_logout(request):
+    logout(request)
+    return redirect('index')

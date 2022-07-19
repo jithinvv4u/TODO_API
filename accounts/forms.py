@@ -10,5 +10,5 @@ class RegisterForm(UserCreationForm):
         fields=['username','email','password1']
         
 class LoginForm(forms.Form):
-    username = forms.CharField(required=True, widget=forms.TextInput())
+    username = forms.CharField(required=True, widget= forms.TextInput(attrs={'id':'input_username'}))
     password = forms.CharField(required=True, widget=forms.PasswordInput())

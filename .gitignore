@@ -1,4 +1,5 @@
 venv/
+accounts/__pycache__/
 api/__pycache__/
 TO_DO/__pycache__/
 api/migrations/

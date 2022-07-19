@@ -9,12 +9,17 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
   </head>
+  <style>
+       .error {
+      color: red;
+   }
+  </style>
   <body>
-
-
     <section class="vh-100" style="background-color: #eee;">
       <div class="container h-100">
+      {% include 'partials/messages.html' %}
         <div class="row d-flex justify-content-center align-items-center h-100">
           <div class="col-lg-12 col-xl-11">
             <div class="card text-black" style="border-radius: 25px;">
@@ -110,11 +115,11 @@
       },
       password: {
         required: true,
-        minlength: 5
+        minlength: 8,
       },
       password2: {
         required: true,
-        minlength: 5,
+        minlength: 8,
         equalTo:'#password'
       }
     },
@@ -123,11 +128,11 @@
       username: "Please enter your username",
       password: {
         required: "Please provide a password",
-        minlength: "Your password must be at least 5 characters long"
+        minlength: "Your password must be at least 8 characters long"
       },
       password2: {
         required: "Please provide a password",
-        minlength: "Your password must be at least 5 characters long"
+        minlength: "Your password must be at least 8 characters long"
       },
       email: "Please enter a valid email address"
     },
@@ -149,7 +154,11 @@
             'password2':password2,
           },
           success: function(response){
-            alert(response.message)
+            if (response.message) {
+              alert(response.message)
+            }else{
+              window.location = "login"
+            }
           }
         })
     }
