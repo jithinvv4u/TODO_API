@@ -1,20 +1,16 @@
-from email import message
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
-from django.contrib.auth.models import User
-from rest_framework.views import View
 from .serializers import RegisterSerializer
-from rest_framework.permissions import AllowAny
 from django.contrib import messages
-from django.contrib.auth.forms import AuthenticationForm
 from .forms import LoginForm
 from django.contrib.auth import authenticate,login,logout
 from django.contrib import messages
+from rest_framework.views import APIView
 
 def registerPage(request):
     return render(request,'userRegister.html')
 
-class RegisterView(View):
+class RegisterView(APIView):
     serializer_class = RegisterSerializer
     
     def post(self,request,*args,**kwrags):
