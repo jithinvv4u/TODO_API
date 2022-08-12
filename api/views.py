@@ -6,12 +6,12 @@ from django.views import View
 from django.http import Http404,QueryDict
 from .models import ToDo
 from .serializers import ToDoSerializer
-
+from rest_framework.views import APIView
 
 def loadIndex(request):
     return render(request,'index.html')
 
-class ListToDo(View):
+class ListToDo(APIView):
     serializer=ToDoSerializer
     model=ToDo
     
